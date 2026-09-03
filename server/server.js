@@ -32,6 +32,21 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
+// Middleware to ensure DB connection on Vercel Serverless Invocation
+let isDbInitialized = false;
+app.use(async (req, res, next) => {
+  if (!isDbInitialized) {
+    try {
+      await connectDB();
+      await seedDatabase();
+      isDbInitialized = true;
+    } catch (err) {
+      console.error('DB Initialization error in Vercel function:', err);
+    }
+  }
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -39,7 +54,11 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/delivery', deliveryRoutes);
 
-// Health check
+// Root & Health check
+app.get('/', (req, res) => {
+  res.json({ message: 'Aaleestudio Backend API operational', status: 200 });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Aaleestudio API Server Running Successfully', timestamp: new Date() });
 });
@@ -50,10 +69,14 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize Database connection and start server
-connectDB().then(async () => {
-  await seedDatabase();
-  app.listen(PORT, () => {
-    console.log(`[Server] Aaleestudio Backend listening on port ${PORT}`);
+// Only listen on port if NOT running inside Vercel Serverless environment
+if (!process.env.VERCEL) {
+  connectDB().then(async () => {
+    await seedDatabase();
+    app.listen(PORT, () => {
+      console.log(`[Server] Aaleestudio Backend listening on port ${PORT}`);
+    });
   });
-});
+}
+
+export default app;
