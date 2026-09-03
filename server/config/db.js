@@ -13,10 +13,11 @@ export const connectDB = async () => {
   }
 
   if (!connPromise) {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://fahadazizdar559_db_user:phodHS2J6mnt0mkC@cluster0.y3xjbvr.mongodb.net/alesstore?retryWrites=true&w=majority&appName=Cluster0';
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb+srv://fahadazizdar559_db_user:phodHS2J6mnt0mkC@cluster0.y3xjbvr.mongodb.net/alesstore?retryWrites=true&w=majority&appName=Cluster0';
 
     connPromise = mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000
+      serverSelectionTimeoutMS: 3000,
+      connectTimeoutMS: 3000
     }).then((m) => {
       console.log(`[Database] MongoDB Atlas Connected successfully.`);
       isInMemoryDB = false;
@@ -29,8 +30,15 @@ export const connectDB = async () => {
   }
 
   try {
-    await connPromise;
+    await Promise.race([
+      connPromise,
+      new Promise((resolve) => setTimeout(resolve, 3000))
+    ]);
   } catch (err) {
+    isInMemoryDB = true;
+  }
+
+  if (mongoose.connection.readyState !== 1) {
     isInMemoryDB = true;
   }
 

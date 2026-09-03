@@ -25,7 +25,36 @@ export const registerUser = async (req, res, next) => {
       throw new Error('Password must be at least 4 characters long.');
     }
 
-    // Always attempt MongoDB Atlas creation
+    if (isInMemoryDB) {
+      const memUserExists = inMemoryUsers.find((u) => u.email === lowerEmail);
+      if (memUserExists) {
+        res.status(400);
+        throw new Error('User with this email is already registered. Please Sign In.');
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const newMemUser = {
+        _id: 'user_' + Date.now(),
+        name: cleanName,
+        email: lowerEmail,
+        passwordHash,
+        phone: phone ? phone.trim() : '',
+        role: 'customer',
+        isActive: true
+      };
+      inMemoryUsers.push(newMemUser);
+
+      return res.status(201).json({
+        _id: newMemUser._id,
+        name: newMemUser.name,
+        email: newMemUser.email,
+        phone: newMemUser.phone,
+        role: newMemUser.role,
+        isActive: newMemUser.isActive,
+        token: generateToken(newMemUser._id)
+      });
+    }
+
     const userExists = await User.findOne({ email: lowerEmail });
     if (userExists) {
       res.status(400);

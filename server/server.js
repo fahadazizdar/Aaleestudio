@@ -44,6 +44,14 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Normalize request URLs for Vercel Serverless Invocation
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api/index.js')) {
+    req.url = req.url.replace('/api/index.js', '/api') || '/api';
+  }
+  next();
+});
+
 // Safe Rate Limiter for Vercel Serverless
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
