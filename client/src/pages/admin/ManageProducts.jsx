@@ -112,7 +112,15 @@ export default function ManageProducts() {
                       <tr key={p._id} className="hover:bg-stone-50/80 transition-colors">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img src={firstImage} alt={p.name} className="w-12 h-14 object-cover rounded-lg bg-stone-100" />
+                            <img
+                              src={firstImage}
+                              alt={p.name}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+                              }}
+                              className="w-12 h-14 object-cover rounded-lg bg-stone-100"
+                            />
                             <div>
                               <span className="font-bold text-stone-900 text-sm block">{p.name}</span>
                               <span className="text-[11px] text-stone-400 line-clamp-1">{p.description}</span>

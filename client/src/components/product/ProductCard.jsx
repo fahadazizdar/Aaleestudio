@@ -22,6 +22,10 @@ export default function ProductCard({ product }) {
         <img
           src={primaryImage}
           alt={product.name}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+          }}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
         />
 
