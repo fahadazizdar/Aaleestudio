@@ -177,7 +177,16 @@ export let inMemoryUsers = [
     _id: 'user_admin',
     name: 'Aaleestudio Admin',
     email: 'admin@aaleestudio.com',
-    passwordHash: '$2a$10$w8T0M4jDq8tN0Dq.q1u9eeH9yC4lK5o9rR7zW6l8x7.Z4J0H5Y2mC', // "admin123"
+    passwordHash: '$2a$10$edtbokhwVv8f8u3uX.KnO.I8Jpta1YrbIuJrhiDJjL8nm4.E.jjau', // "admin123"
+    role: 'admin',
+    phone: '+92 300 0000000',
+    isActive: true
+  },
+  {
+    _id: 'user_admin2',
+    name: 'Alesstore Admin',
+    email: 'admin@alesstore.com',
+    passwordHash: '$2a$10$edtbokhwVv8f8u3uX.KnO.I8Jpta1YrbIuJrhiDJjL8nm4.E.jjau', // "admin123"
     role: 'admin',
     phone: '+92 300 0000000',
     isActive: true
@@ -186,7 +195,7 @@ export let inMemoryUsers = [
     _id: 'user_customer1',
     name: 'Ali Raza',
     email: 'customer@gmail.com',
-    passwordHash: '$2a$10$w8T0M4jDq8tN0Dq.q1u9eeH9yC4lK5o9rR7zW6l8x7.Z4J0H5Y2mC', // "admin123"
+    passwordHash: '$2a$10$edtbokhwVv8f8u3uX.KnO.I8Jpta1YrbIuJrhiDJjL8nm4.E.jjau', // "admin123"
     role: 'customer',
     phone: '+92 321 9876543',
     isActive: true
