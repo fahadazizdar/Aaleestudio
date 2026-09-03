@@ -20,9 +20,10 @@ export default function ManageProducts() {
     setLoading(true);
     try {
       const { data } = await API.get('/products');
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load products:', err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }

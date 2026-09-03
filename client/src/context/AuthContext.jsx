@@ -15,7 +15,9 @@ export const AuthProvider = ({ children }) => {
   const fetchSettings = async () => {
     try {
       const { data } = await API.get('/admin/settings');
-      setSiteSettings(data);
+      if (data && typeof data === 'object' && !data.message) {
+        setSiteSettings(data);
+      }
     } catch (err) {
       console.error('Failed to load site settings:', err);
     }

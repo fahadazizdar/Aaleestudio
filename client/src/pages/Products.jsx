@@ -28,9 +28,10 @@ export default function Products() {
       if (search) query += `search=${encodeURIComponent(search)}&`;
 
       const { data } = await API.get(query);
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch products catalog:', err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -98,7 +99,7 @@ export default function Products() {
       {/* Grid */}
       {loading ? (
         <Loader label="Loading products..." />
-      ) : products.length === 0 ? (
+      ) : (Array.isArray(products) ? products : []).length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-stone-200 space-y-3">
           <SlidersHorizontal className="w-12 h-12 text-stone-300 mx-auto" />
           <h3 className="font-serif font-bold text-lg text-stone-800">No Outfits Found</h3>
@@ -106,7 +107,7 @@ export default function Products() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((p) => (
+          {(Array.isArray(products) ? products : []).map((p) => (
             <ProductCard key={p._id} product={p} />
           ))}
         </div>

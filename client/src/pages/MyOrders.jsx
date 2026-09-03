@@ -13,9 +13,10 @@ export default function MyOrders() {
     const fetchOrders = async () => {
       try {
         const { data } = await API.get('/orders/my-orders');
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to load user orders:', err);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
@@ -54,7 +55,7 @@ export default function MyOrders() {
         </p>
       </div>
 
-      {orders.length === 0 ? (
+      {(Array.isArray(orders) ? orders : []).length === 0 ? (
         <div className="text-center py-16 bg-white rounded-2xl border border-stone-200 space-y-4">
           <Package className="w-12 h-12 text-stone-300 mx-auto" />
           <h3 className="font-serif font-bold text-lg text-stone-800">No Orders Placed Yet</h3>
@@ -62,7 +63,7 @@ export default function MyOrders() {
         </div>
       ) : (
         <div className="space-y-6">
-          {orders.map((ord) => (
+          {(Array.isArray(orders) ? orders : []).map((ord) => (
             <div key={ord._id} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-stone-100 pb-4 gap-2">
                 <div>
@@ -76,7 +77,7 @@ export default function MyOrders() {
 
               {/* Items */}
               <div className="space-y-3">
-                {ord.items.map((item, idx) => (
+                {(Array.isArray(ord.items) ? ord.items : []).map((item, idx) => (
                   <div key={idx} className="flex items-center gap-3 text-xs">
                     <img src={item.image} alt={item.productName} className="w-12 h-14 object-cover rounded-lg bg-stone-100" />
                     <div className="flex-grow">

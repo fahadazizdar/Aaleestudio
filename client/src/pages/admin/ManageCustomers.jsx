@@ -17,9 +17,10 @@ export default function ManageCustomers() {
     setLoading(true);
     try {
       const { data } = await API.get('/admin/customers');
-      setCustomers(data);
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load customers:', err);
+      setCustomers([]);
     } finally {
       setLoading(false);
     }

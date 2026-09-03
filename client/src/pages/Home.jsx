@@ -17,9 +17,10 @@ export default function Home() {
     const fetchFeatured = async () => {
       try {
         const { data } = await API.get('/products?featured=true');
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch featured products:', err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -113,7 +114,7 @@ export default function Home() {
           <Loader label="Fetching luxury catalog..." />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((p) => (
+            {(Array.isArray(products) ? products : []).map((p) => (
               <ProductCard key={p._id} product={p} />
             ))}
           </div>

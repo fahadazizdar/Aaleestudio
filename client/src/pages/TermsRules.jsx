@@ -36,7 +36,7 @@ export default function TermsRules() {
         </div>
 
         <div className="space-y-4">
-          {rules.map((rule, idx) => (
+          {(Array.isArray(rules) ? rules : []).map((rule, idx) => (
             <div key={idx} className="flex items-start gap-4 p-4 rounded-xl bg-stone-50 border border-stone-100">
               <span className="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                 {idx + 1}

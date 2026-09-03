@@ -17,9 +17,10 @@ export default function ManageOrders() {
     setLoading(true);
     try {
       const { data } = await API.get('/orders');
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to fetch orders:', err);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
