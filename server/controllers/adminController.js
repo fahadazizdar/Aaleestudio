@@ -3,7 +3,7 @@ import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import SiteSettings from '../models/SiteSettings.js';
 import ContactMessage from '../models/ContactMessage.js';
-import { isInMemoryDB } from '../config/db.js';
+import { connectDB, isInMemoryDB } from '../config/db.js';
 import {
   inMemoryUsers,
   inMemoryProducts,
@@ -18,6 +18,7 @@ export let inMemoryContactMessages = [];
 // @access  Private/Admin
 export const getAllCustomers = async (req, res, next) => {
   try {
+    await connectDB();
     if (isInMemoryDB) {
       const customers = inMemoryUsers.filter((u) => u.role === 'customer');
       return res.json(customers);
@@ -30,74 +31,117 @@ export const getAllCustomers = async (req, res, next) => {
   }
 };
 
-// @desc    Toggle customer active/deactive status
-// @route   PUT /api/admin/customers/:id/status
+// @desc    Toggle customer active status (deactivate/activate)
+// @route   PUT /api/admin/customers/:id/toggle-status
 // @access  Private/Admin
-export const toggleCustomerStatus = async (req, res, next) => {
+export const toggleUserStatus = async (req, res, next) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     if (isInMemoryDB) {
-      const customer = inMemoryUsers.find((u) => u._id === id);
-      if (!customer) {
+      const user = inMemoryUsers.find((u) => u._id === id);
+      if (!user) {
         res.status(404);
-        throw new Error('Customer not found');
+        throw new Error('User not found');
       }
-      customer.isActive = !customer.isActive;
+
+      user.isActive = !user.isActive;
       return res.json({
-        _id: customer._id,
-        name: customer.name,
-        email: customer.email,
-        isActive: customer.isActive,
-        message: `Customer account status updated to ${customer.isActive ? 'Active' : 'Deactive'}`
+        message: `User account has been ${user.isActive ? 'activated' : 'deactivated'}.`,
+        user: { _id: user._id, name: user.name, email: user.email, isActive: user.isActive }
       });
     }
 
-    const customer = await User.findById(id);
-    if (!customer) {
+    const user = await User.findById(id);
+    if (!user) {
       res.status(404);
-      throw new Error('Customer not found');
+      throw new Error('User not found');
     }
 
-    customer.isActive = !customer.isActive;
-    await customer.save();
+    user.isActive = !user.isActive;
+    await user.save();
 
     res.json({
-      _id: customer._id,
-      name: customer.name,
-      email: customer.email,
-      isActive: customer.isActive,
-      message: `Customer account status updated to ${customer.isActive ? 'Active' : 'Deactive'}`
+      message: `User account has been ${user.isActive ? 'activated' : 'deactivated'}.`,
+      user: { _id: user._id, name: user.name, email: user.email, isActive: user.isActive }
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get site settings & rules
+// @desc    Get dashboard metrics & summary
+// @route   GET /api/admin/dashboard
+// @access  Private/Admin
+export const getDashboardStats = async (req, res, next) => {
+  try {
+    await connectDB();
+    if (isInMemoryDB) {
+      const totalRevenue = inMemoryOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      return res.json({
+        totalProducts: inMemoryProducts.length,
+        totalOrders: inMemoryOrders.length,
+        totalCustomers: inMemoryUsers.filter((u) => u.role === 'customer').length,
+        totalRevenue,
+        recentOrders: inMemoryOrders.slice(0, 5)
+      });
+    }
+
+    const totalProducts = await Product.countDocuments({ isActive: true });
+    const totalOrders = await Order.countDocuments();
+    const totalCustomers = await User.countDocuments({ role: 'customer' });
+
+    const revenueResult = await Order.aggregate([
+      { $match: { isPaid: true } },
+      { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+    ]);
+    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
+
+    const recentOrders = await Order.find()
+      .populate('customer', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    res.json({
+      totalProducts,
+      totalOrders,
+      totalCustomers,
+      totalRevenue,
+      recentOrders
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get current site settings
 // @route   GET /api/admin/settings
 // @access  Public
 export const getSiteSettings = async (req, res, next) => {
   try {
+    await connectDB();
     if (isInMemoryDB) {
       return res.json(inMemorySiteSettings);
     }
 
     let settings = await SiteSettings.findOne();
     if (!settings) {
-      settings = await SiteSettings.create({});
+      settings = await SiteSettings.create(inMemorySiteSettings);
     }
+
     res.json(settings);
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Update site settings, rules, and delivery parameters
+// @desc    Update site settings
 // @route   PUT /api/admin/settings
 // @access  Private/Admin
 export const updateSiteSettings = async (req, res, next) => {
   try {
+    await connectDB();
     if (isInMemoryDB) {
       Object.assign(inMemorySiteSettings, req.body);
       return res.json(inMemorySiteSettings);
@@ -110,23 +154,41 @@ export const updateSiteSettings = async (req, res, next) => {
       Object.assign(settings, req.body);
     }
 
-    const updated = await settings.save();
-    res.json(updated);
+    const updatedSettings = await settings.save();
+    res.json(updatedSettings);
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Submit a contact inquiry message
+// @desc    Get customer contact messages
+// @route   GET /api/admin/contact-messages
+// @access  Private/Admin
+export const getContactMessages = async (req, res, next) => {
+  try {
+    await connectDB();
+    if (isInMemoryDB) {
+      return res.json(inMemoryContactMessages);
+    }
+
+    const messages = await ContactMessage.find({}).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create new contact message
 // @route   POST /api/admin/contact-messages
 // @access  Public
 export const createContactMessage = async (req, res, next) => {
   try {
-    const { name, email, phone, message } = req.body;
+    await connectDB();
+    const { name, email, subject, message } = req.body;
 
     if (!name || !email || !message) {
       res.status(400);
-      throw new Error('Please fill in required fields (name, email, message).');
+      throw new Error('Please fill in required fields (name, email, message)');
     }
 
     if (isInMemoryDB) {
@@ -134,39 +196,22 @@ export const createContactMessage = async (req, res, next) => {
         _id: 'msg_' + Date.now(),
         name,
         email,
-        phone: phone || '',
+        subject: subject || 'General Inquiry',
         message,
-        status: 'Unread',
         createdAt: new Date().toISOString()
       };
       inMemoryContactMessages.unshift(newMessage);
-      return res.status(201).json(newMessage);
+      return res.status(201).json({ message: 'Message sent successfully!', data: newMessage });
     }
 
     const newMessage = await ContactMessage.create({
       name,
       email,
-      phone: phone || '',
+      subject: subject || 'General Inquiry',
       message
     });
 
-    res.status(201).json(newMessage);
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get all contact inquiry messages
-// @route   GET /api/admin/contact-messages
-// @access  Private/Admin
-export const getContactMessages = async (req, res, next) => {
-  try {
-    if (isInMemoryDB) {
-      return res.json(inMemoryContactMessages);
-    }
-
-    const messages = await ContactMessage.find().sort({ createdAt: -1 });
-    res.json(messages);
+    res.status(201).json({ message: 'Message sent successfully!', data: newMessage });
   } catch (error) {
     next(error);
   }
@@ -177,11 +222,12 @@ export const getContactMessages = async (req, res, next) => {
 // @access  Private/Admin
 export const deleteContactMessage = async (req, res, next) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     if (isInMemoryDB) {
       inMemoryContactMessages = inMemoryContactMessages.filter((m) => m._id !== id);
-      return res.json({ message: 'Message deleted' });
+      return res.json({ message: 'Message deleted successfully' });
     }
 
     const msg = await ContactMessage.findById(id);
@@ -191,54 +237,7 @@ export const deleteContactMessage = async (req, res, next) => {
     }
 
     await msg.deleteOne();
-    res.json({ message: 'Message deleted' });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Get Admin Dashboard metrics
-// @route   GET /api/admin/dashboard-stats
-// @access  Private/Admin
-export const getDashboardStats = async (req, res, next) => {
-  try {
-    if (isInMemoryDB) {
-      const totalOrders = inMemoryOrders.length;
-      const totalRevenue = inMemoryOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
-      const pendingOrders = inMemoryOrders.filter((o) => o.orderStatus === 'Pending').length;
-      const totalCustomers = inMemoryUsers.filter((u) => u.role === 'customer').length;
-      const totalProducts = inMemoryProducts.length;
-      const totalInquiries = inMemoryContactMessages.length;
-
-      return res.json({
-        totalOrders,
-        totalRevenue,
-        pendingOrders,
-        totalCustomers,
-        totalProducts,
-        totalInquiries
-      });
-    }
-
-    const totalOrders = await Order.countDocuments();
-    const pendingOrders = await Order.countDocuments({ orderStatus: 'Pending' });
-    const totalCustomers = await User.countDocuments({ role: 'customer' });
-    const totalProducts = await Product.countDocuments();
-    const totalInquiries = await ContactMessage.countDocuments();
-
-    const revenueResult = await Order.aggregate([
-      { $group: { _id: null, total: { $sum: '$totalAmount' } } }
-    ]);
-    const totalRevenue = revenueResult.length > 0 ? revenueResult[0].total : 0;
-
-    res.json({
-      totalOrders,
-      totalRevenue,
-      pendingOrders,
-      totalCustomers,
-      totalProducts,
-      totalInquiries
-    });
+    res.json({ message: 'Message deleted successfully' });
   } catch (error) {
     next(error);
   }

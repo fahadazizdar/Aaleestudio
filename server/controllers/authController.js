@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
-import { isInMemoryDB } from '../config/db.js';
+import { connectDB, isInMemoryDB } from '../config/db.js';
 import { inMemoryUsers } from '../utils/seedData.js';
 
 // @desc    Register a new customer
@@ -9,6 +9,7 @@ import { inMemoryUsers } from '../utils/seedData.js';
 // @access  Public
 export const registerUser = async (req, res, next) => {
   try {
+    await connectDB();
     const { name, email, password, phone } = req.body || {};
 
     if (!name || !email || !password) {
@@ -68,6 +69,7 @@ export const registerUser = async (req, res, next) => {
 // @access  Public
 export const loginUser = async (req, res, next) => {
   try {
+    await connectDB();
     const { email, password } = req.body || {};
 
     if (!email || !password) {
@@ -127,6 +129,7 @@ export const loginUser = async (req, res, next) => {
 // @access  Private
 export const getUserProfile = async (req, res, next) => {
   try {
+    await connectDB();
     res.json(req.user);
   } catch (error) {
     next(error);
