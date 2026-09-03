@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const backendUrl = import.meta.env.VITE_API_URL || 'https://aaleestudio-3j81.vercel.app/api';
+const backendUrl = import.meta.env.VITE_API_URL || 'https://aaleestudio.vercel.app/api';
 
 const API = axios.create({
   baseURL: backendUrl

@@ -33,16 +33,11 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Middleware to ensure DB connection on Vercel Serverless Invocation
-let isDbInitialized = false;
 app.use(async (req, res, next) => {
-  if (!isDbInitialized) {
-    try {
-      await connectDB();
-      await seedDatabase();
-      isDbInitialized = true;
-    } catch (err) {
-      console.error('DB Initialization error in Vercel function:', err);
-    }
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('DB Initialization error in Vercel function:', err);
   }
   next();
 });
