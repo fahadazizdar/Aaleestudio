@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-// Reads VITE_API_URL from Vercel / environment variables, defaulting to '/api' for proxy/relative routing
-const backendUrl = import.meta.env.VITE_API_URL || '/api';
+const backendUrl = import.meta.env.VITE_API_URL || 'https://aaleestudio-3j81.vercel.app/api';
 
 const API = axios.create({
   baseURL: backendUrl
