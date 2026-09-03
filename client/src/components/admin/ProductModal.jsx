@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
 
 const getColorHexByName = (name) => {
   const map = {
@@ -16,7 +16,47 @@ const getColorHexByName = (name) => {
   return '#78350F';
 };
 
+// Canvas helper to compress local camera images to web-optimized JPEG base64
+const compressImageFile = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 1000;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height);
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+        resolve(compressedBase64);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -59,15 +99,19 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Auto sync hex code from name
-    const finalColors = formData.colors.map((c) => ({
-      ...c,
-      colorCode: getColorHexByName(c.colorName)
-    }));
+    setIsSubmitting(true);
+    try {
+      const finalColors = formData.colors.map((c) => ({
+        ...c,
+        colorCode: getColorHexByName(c.colorName)
+      }));
 
-    onSave({ ...formData, colors: finalColors });
+      await onSave({ ...formData, colors: finalColors });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const addColor = () => {
@@ -109,21 +153,19 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
     });
   };
 
-  // Handle local file uploads from computer
-  const handleFileUpload = (colorIndex, files) => {
+  // Handle local file uploads with auto canvas image compression
+  const handleFileUpload = async (colorIndex, files) => {
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Image = reader.result;
-        setFormData((prev) => {
-          const updated = [...prev.colors];
-          updated[colorIndex].images = [...updated[colorIndex].images, base64Image];
-          return { ...prev, colors: updated };
-        });
-      };
-      reader.readAsDataURL(file);
+    const fileArray = Array.from(files);
+    const compressedImages = await Promise.all(
+      fileArray.map((file) => compressImageFile(file))
+    );
+
+    setFormData((prev) => {
+      const updated = [...prev.colors];
+      updated[colorIndex].images = [...updated[colorIndex].images, ...compressedImages];
+      return { ...prev, colors: updated };
     });
   };
 
@@ -267,7 +309,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
                         onChange={(e) => handleFileUpload(idx, e.target.files)}
                       />
                     </label>
-                    <span className="text-[11px] text-stone-400">Supports JPG, PNG, WEBP</span>
+                    <span className="text-[11px] text-stone-400">Auto-compressed for fast rendering</span>
                   </div>
 
                   {/* Uploaded Images Thumbnails */}
@@ -309,6 +351,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-stone-200">
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={onClose}
               className="px-5 py-2.5 rounded-lg border border-stone-300 font-semibold hover:bg-stone-100"
             >
@@ -316,9 +359,17 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-stone-900 text-white font-semibold hover:bg-brand-600 transition-colors"
+              disabled={isSubmitting}
+              className="px-6 py-2.5 rounded-lg bg-stone-900 text-white font-semibold hover:bg-brand-600 transition-colors flex items-center gap-2"
             >
-              Save Product
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving Product...</span>
+                </>
+              ) : (
+                <span>Save Product</span>
+              )}
             </button>
           </div>
         </form>
