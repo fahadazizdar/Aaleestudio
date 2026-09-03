@@ -1,5 +1,5 @@
 import Product from '../models/Product.js';
-import { isInMemoryDB } from '../config/db.js';
+import { connectDB, isInMemoryDB } from '../config/db.js';
 import { inMemoryProducts } from '../utils/seedData.js';
 
 // @desc    Get all active products with filters
@@ -7,6 +7,7 @@ import { inMemoryProducts } from '../utils/seedData.js';
 // @access  Public
 export const getProducts = async (req, res, next) => {
   try {
+    await connectDB();
     const { category, search, featured } = req.query;
 
     if (isInMemoryDB) {
@@ -59,6 +60,7 @@ export const getProducts = async (req, res, next) => {
 // @access  Public
 export const getProductById = async (req, res, next) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     if (isInMemoryDB) {
@@ -87,6 +89,7 @@ export const getProductById = async (req, res, next) => {
 // @access  Private/Admin
 export const createProduct = async (req, res, next) => {
   try {
+    await connectDB();
     const { name, description, category, basePrice, sizes, colors, images360, featured } = req.body;
 
     if (!name || !description || !category || !basePrice) {
@@ -143,6 +146,7 @@ export const createProduct = async (req, res, next) => {
 // @access  Private/Admin
 export const updateProduct = async (req, res, next) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     if (isInMemoryDB) {
@@ -175,6 +179,7 @@ export const updateProduct = async (req, res, next) => {
 // @access  Private/Admin
 export const deleteProduct = async (req, res, next) => {
   try {
+    await connectDB();
     const { id } = req.params;
 
     if (isInMemoryDB) {
