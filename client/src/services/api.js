@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const backendUrl = import.meta.env.VITE_API_URL || 'https://aaleestudio-2rblit1dp-aaleestore.vercel.app/api';
+
 const API = axios.create({
-  baseURL: '/api'
+  baseURL: backendUrl
 });
 
 API.interceptors.request.use((config) => {
