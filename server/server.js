@@ -19,7 +19,7 @@ dotenv.config();
 const app = express();
 
 // Trust Vercel Proxy headers
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 // Security & Explicit CORS Middlewares
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -44,19 +44,11 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Normalize request URLs for Vercel Serverless Invocation
-app.use((req, res, next) => {
-  if (req.url.startsWith('/api/index.js')) {
-    req.url = req.url.replace('/api/index.js', '/api') || '/api';
-  }
-  next();
-});
-
 // Safe Rate Limiter for Vercel Serverless
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
-  validate: { trustProxy: false },
+  max: 1000,
+  validate: false,
   message: { message: 'Too many requests from this IP, please try again later.' }
 });
 app.use('/api', limiter);
@@ -88,12 +80,16 @@ app.use('/api/delivery', deliveryRoutes);
 app.use('/delivery', deliveryRoutes);
 
 // Root & Health check
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.json({ message: 'Aaleestudio Backend API operational', status: 200 });
 });
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Aaleestudio API Server Running Successfully', timestamp: new Date() });
+});
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Aaleestudio Backend API operational', status: 200 });
 });
 
 // Error handling
