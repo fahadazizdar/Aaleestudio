@@ -23,12 +23,16 @@ export const connectDB = async () => {
       return m;
     }).catch((err) => {
       connPromise = null;
-      console.error(`[Database Error] MongoDB connection error: ${err.message}`);
-      throw err;
+      console.warn(`[Database Warning] MongoDB Atlas connection failed (${err.message}). Activating fallback mode.`);
+      isInMemoryDB = true;
     });
   }
 
-  await connPromise;
-  isInMemoryDB = false;
+  try {
+    await connPromise;
+  } catch (err) {
+    isInMemoryDB = true;
+  }
+
   return mongoose.connection;
 };
