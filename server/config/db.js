@@ -6,10 +6,10 @@ dotenv.config();
 export let isInMemoryDB = false;
 
 export const connectDB = async () => {
-  const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/aaleestudio';
+  const mongoUri = process.env.MONGO_URI || 'mongodb+srv://fahadazizdar559_db_user:phodHS2J6mnt0mkC@cluster0.y3xjbvr.mongodb.net/alesstore?retryWrites=true&w=majority&appName=Cluster0';
   try {
     const conn = await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000
+      serverSelectionTimeoutMS: 8000
     });
     console.log(`[Database] MongoDB Atlas Connected: ${conn.connection.host}`);
     isInMemoryDB = false;
