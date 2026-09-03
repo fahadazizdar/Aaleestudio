@@ -47,12 +47,21 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// API Routes
+// API Routes (Mounted with and without /api prefix for Vercel Serverless compatibility)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/products', productRoutes);
+app.use('/products', productRoutes);
+
 app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
+
 app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes);
+
 app.use('/api/delivery', deliveryRoutes);
+app.use('/delivery', deliveryRoutes);
 
 // Root & Health check
 app.get('/', (req, res) => {
