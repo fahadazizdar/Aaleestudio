@@ -24,43 +24,11 @@ export const registerUser = async (req, res, next) => {
       throw new Error('Password must be at least 4 characters long.');
     }
 
-    if (isInMemoryDB) {
-      const exists = inMemoryUsers.find((u) => u.email === lowerEmail);
-      if (exists) {
-        res.status(400);
-        throw new Error('User with this email already exists. Please Sign In.');
-      }
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      const newUser = {
-        _id: 'user_' + Date.now(),
-        name: cleanName,
-        email: lowerEmail,
-        passwordHash: hashedPassword,
-        phone: phone ? phone.trim() : '',
-        role: 'customer',
-        isActive: true,
-        createdAt: new Date().toISOString()
-      };
-
-      inMemoryUsers.push(newUser);
-
-      return res.status(201).json({
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        phone: newUser.phone,
-        role: newUser.role,
-        isActive: newUser.isActive,
-        token: generateToken(newUser._id)
-      });
-    }
-
+    // Always attempt MongoDB Atlas creation
     const userExists = await User.findOne({ email: lowerEmail });
     if (userExists) {
       res.status(400);
-      throw new Error('User with this email already exists. Please Sign In.');
+      throw new Error('User with this email is already registered. Please Sign In.');
     }
 
     const user = await User.create({
@@ -109,37 +77,23 @@ export const loginUser = async (req, res, next) => {
 
     const lowerEmail = email.toLowerCase().trim();
 
-    if (isInMemoryDB) {
-      const user = inMemoryUsers.find((u) => u.email === lowerEmail);
-      if (!user) {
-        res.status(401);
-        throw new Error('Invalid email or password.');
-      }
-
-      if (user.isActive === false) {
-        res.status(403);
-        throw new Error('Your account has been deactivated by Admin. Please contact customer support.');
-      }
-
-      const isMatch = await bcrypt.compare(password, user.passwordHash);
-      if (!isMatch) {
-        res.status(401);
-        throw new Error('Invalid email or password.');
-      }
-
-      return res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        isActive: user.isActive,
-        token: generateToken(user._id)
-      });
-    }
-
     const user = await User.findOne({ email: lowerEmail });
     if (!user) {
+      // Fallback for in-memory demo if DB is unavailable
+      if (isInMemoryDB) {
+        const memUser = inMemoryUsers.find((u) => u.email === lowerEmail);
+        if (memUser && (await bcrypt.compare(password, memUser.passwordHash))) {
+          return res.json({
+            _id: memUser._id,
+            name: memUser.name,
+            email: memUser.email,
+            phone: memUser.phone,
+            role: memUser.role,
+            isActive: memUser.isActive,
+            token: generateToken(memUser._id)
+          });
+        }
+      }
       res.status(401);
       throw new Error('Invalid email or password.');
     }
