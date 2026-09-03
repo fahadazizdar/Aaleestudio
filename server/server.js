@@ -18,6 +18,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust Vercel Proxy headers
+app.set('trust proxy', 1);
+
 // Security & Explicit CORS Middlewares
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -41,10 +44,11 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Rate Limiter
+// Safe Rate Limiter for Vercel Serverless
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: 500,
+  validate: { trustProxy: false },
   message: { message: 'Too many requests from this IP, please try again later.' }
 });
 app.use('/api', limiter);
