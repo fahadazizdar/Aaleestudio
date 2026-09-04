@@ -72,6 +72,8 @@ export const toggleUserStatus = async (req, res, next) => {
   }
 };
 
+export const toggleCustomerStatus = toggleUserStatus;
+
 // @desc    Get dashboard metrics & summary
 // @route   GET /api/admin/dashboard
 // @access  Private/Admin
