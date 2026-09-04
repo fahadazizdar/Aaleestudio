@@ -49,6 +49,10 @@ export const getProducts = async (req, res, next) => {
     }
 
     const products = await Product.find(filterObj).sort({ createdAt: -1 });
+    if (products.length === 0 && (!category || category === 'All') && !search && !featured) {
+      let filtered = inMemoryProducts.filter((p) => p.isActive !== false);
+      return res.json(filtered);
+    }
     res.json(products);
   } catch (error) {
     next(error);
