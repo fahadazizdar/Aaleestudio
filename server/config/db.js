@@ -13,7 +13,7 @@ export const connectDB = async () => {
   }
 
   if (!connPromise) {
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb+srv://fahadazizdar559_db_user:phodHS2J6mnt0mkC@cluster0.y3xjbvr.mongodb.net/alesstore?retryWrites=true&w=majority&appName=Cluster0';
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb+srv://fahadazizdar559_db_user:phodHS2J6mnt0mkC@cluster0.y3xjbvr.mongodb.net/aaleestudio?retryWrites=true&w=majority&appName=Cluster0';
 
     connPromise = mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 3000,
