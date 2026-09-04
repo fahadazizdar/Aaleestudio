@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import { generateToken } from '../utils/generateToken.js';
@@ -25,7 +26,7 @@ export const registerUser = async (req, res, next) => {
       throw new Error('Password must be at least 4 characters long.');
     }
 
-    if (isInMemoryDB) {
+    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
       const memUserExists = inMemoryUsers.find((u) => u.email === lowerEmail);
       if (memUserExists) {
         res.status(400);
@@ -108,23 +109,25 @@ export const loginUser = async (req, res, next) => {
 
     const lowerEmail = email.toLowerCase().trim();
 
+    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
+      const memUser = inMemoryUsers.find((u) => u.email === lowerEmail);
+      if (memUser && (await bcrypt.compare(password, memUser.passwordHash))) {
+        return res.json({
+          _id: memUser._id,
+          name: memUser.name,
+          email: memUser.email,
+          phone: memUser.phone,
+          role: memUser.role,
+          isActive: memUser.isActive,
+          token: generateToken(memUser._id)
+        });
+      }
+      res.status(401);
+      throw new Error('Invalid email or password.');
+    }
+
     const user = await User.findOne({ email: lowerEmail });
     if (!user) {
-      // Fallback for in-memory demo if DB is unavailable
-      if (isInMemoryDB) {
-        const memUser = inMemoryUsers.find((u) => u.email === lowerEmail);
-        if (memUser && (await bcrypt.compare(password, memUser.passwordHash))) {
-          return res.json({
-            _id: memUser._id,
-            name: memUser.name,
-            email: memUser.email,
-            phone: memUser.phone,
-            role: memUser.role,
-            isActive: memUser.isActive,
-            token: generateToken(memUser._id)
-          });
-        }
-      }
       res.status(401);
       throw new Error('Invalid email or password.');
     }

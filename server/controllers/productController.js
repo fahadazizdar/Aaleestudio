@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 import { connectDB, isInMemoryDB } from '../config/db.js';
 import { inMemoryProducts } from '../utils/seedData.js';
@@ -10,7 +11,7 @@ export const getProducts = async (req, res, next) => {
     await connectDB();
     const { category, search, featured } = req.query;
 
-    if (isInMemoryDB) {
+    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
       let filtered = inMemoryProducts.filter((p) => p.isActive !== false);
 
       if (category && category !== 'All') {
@@ -49,13 +50,21 @@ export const getProducts = async (req, res, next) => {
     }
 
     const products = await Product.find(filterObj).sort({ createdAt: -1 });
-    if (products.length === 0 && (!category || category === 'All') && !search && !featured) {
+    if (products.length === 0 && (!category || category === 'All') && !search) {
       let filtered = inMemoryProducts.filter((p) => p.isActive !== false);
+      if (featured === 'true') {
+        filtered = filtered.filter((p) => p.featured === true);
+      }
       return res.json(filtered);
     }
     res.json(products);
   } catch (error) {
-    next(error);
+    console.warn('[Products Fetch Warning] Returning fallback catalog:', error.message);
+    let filtered = inMemoryProducts.filter((p) => p.isActive !== false);
+    if (req.query && req.query.featured === 'true') {
+      filtered = filtered.filter((p) => p.featured === true);
+    }
+    return res.json(filtered);
   }
 };
 

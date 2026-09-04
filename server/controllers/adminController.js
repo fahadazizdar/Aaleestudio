@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
@@ -121,7 +122,7 @@ export const getDashboardStats = async (req, res, next) => {
 export const getSiteSettings = async (req, res, next) => {
   try {
     await connectDB();
-    if (isInMemoryDB) {
+    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
       return res.json(inMemorySiteSettings);
     }
 
@@ -132,7 +133,8 @@ export const getSiteSettings = async (req, res, next) => {
 
     res.json(settings);
   } catch (error) {
-    next(error);
+    console.warn('[Site Settings Fetch Warning] Returning fallback settings:', error.message);
+    return res.json(inMemorySiteSettings);
   }
 };
 

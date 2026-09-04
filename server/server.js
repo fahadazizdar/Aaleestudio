@@ -53,13 +53,10 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-// Middleware to ensure DB connection & seeding on Vercel Serverless Invocation
+// Middleware to ensure DB connection on Vercel Serverless Invocation
 app.use(async (req, res, next) => {
   try {
     await connectDB();
-    if (!isInMemoryDB) {
-      await seedDatabase();
-    }
   } catch (err) {
     console.error('DB Initialization error in Vercel function:', err);
   }
