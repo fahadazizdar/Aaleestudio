@@ -54,20 +54,33 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
-    const itemsPrice = items.reduce((acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 1), 0);
+    const formattedItems = items.map((item) => ({
+      product: typeof item.product === 'object' ? item.product._id : (item.product || item._id || 'prod_1'),
+      productName: item.productName || item.name || 'Apparel Item',
+      selectedColor: item.selectedColor || item.color || 'Default',
+      selectedSize: item.selectedSize || item.size || 'M',
+      quantity: Number(item.quantity) || 1,
+      price: Number(item.price) || 0,
+      image: item.image || item.images?.[0] || ''
+    }));
+
+    const itemsPrice = formattedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const totalPrice = itemsPrice + deliveryFee;
 
     if (isInMemoryDB) {
       const newOrder = {
         _id: 'ord_' + Date.now(),
         customer: req.user._id,
-        items,
+        items: formattedItems,
         shippingDetails,
         paymentMethod: 'COD',
         itemsPrice,
         deliveryFee,
+        deliveryCharges: deliveryFee,
         totalPrice,
+        totalAmount: totalPrice,
         status: 'Pending',
+        orderStatus: 'Pending',
         isPaid: false,
         distanceKm,
         createdAt: new Date().toISOString()
@@ -79,13 +92,16 @@ export const createOrder = async (req, res, next) => {
 
     const order = await Order.create({
       customer: req.user._id,
-      items,
+      items: formattedItems,
       shippingDetails,
       paymentMethod: 'COD',
       itemsPrice,
       deliveryFee,
+      deliveryCharges: deliveryFee,
       totalPrice,
+      totalAmount: totalPrice,
       status: 'Pending',
+      orderStatus: 'Pending',
       isPaid: false,
       distanceKm
     });
