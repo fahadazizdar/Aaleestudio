@@ -42,7 +42,7 @@ export const createOrder = async (req, res, next) => {
       }
     }
 
-    let deliveryFee = baseCharge;
+    let deliveryFeeAmount = baseCharge;
     let distanceKm = 0;
 
     if (shippingDetails.latitude && shippingDetails.longitude) {
@@ -50,8 +50,13 @@ export const createOrder = async (req, res, next) => {
       const custLng = Number(shippingDetails.longitude);
       if (!isNaN(custLat) && !isNaN(custLng)) {
         distanceKm = calculateDistance(storeLoc.lat, storeLoc.lng, custLat, custLng);
-        deliveryFee = calculateDeliveryFee(distanceKm, baseCharge, ratePerKm);
+        const feeResult = calculateDeliveryFee(distanceKm, baseCharge, ratePerKm);
+        deliveryFeeAmount = typeof feeResult === 'object' ? Number(feeResult.totalCharges || baseCharge) : Number(feeResult);
       }
+    }
+
+    if (isNaN(deliveryFeeAmount) || deliveryFeeAmount < 0) {
+      deliveryFeeAmount = baseCharge;
     }
 
     const formattedItems = items.map((item) => ({
@@ -65,7 +70,7 @@ export const createOrder = async (req, res, next) => {
     }));
 
     const itemsPrice = formattedItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const totalPrice = itemsPrice + deliveryFee;
+    const totalPrice = itemsPrice + deliveryFeeAmount;
 
     if (isInMemoryDB) {
       const newOrder = {
@@ -75,8 +80,8 @@ export const createOrder = async (req, res, next) => {
         shippingDetails,
         paymentMethod: 'COD',
         itemsPrice,
-        deliveryFee,
-        deliveryCharges: deliveryFee,
+        deliveryFee: deliveryFeeAmount,
+        deliveryCharges: deliveryFeeAmount,
         totalPrice,
         totalAmount: totalPrice,
         status: 'Pending',
@@ -96,8 +101,8 @@ export const createOrder = async (req, res, next) => {
       shippingDetails,
       paymentMethod: 'COD',
       itemsPrice,
-      deliveryFee,
-      deliveryCharges: deliveryFee,
+      deliveryFee: deliveryFeeAmount,
+      deliveryCharges: deliveryFeeAmount,
       totalPrice,
       totalAmount: totalPrice,
       status: 'Pending',
