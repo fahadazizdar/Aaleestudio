@@ -84,8 +84,13 @@ export default function Checkout() {
       clearCart();
       navigate(`/order-success`, { state: { order: data } });
     } catch (err) {
+      const status = err.response?.status;
       const msg = err.response?.data?.message || 'Order booking failed.';
       toast.error(msg);
+      if (status === 401) {
+        toast.error('Session expired or user account not found. Please Sign In to complete your order.');
+        navigate('/login');
+      }
     } finally {
       setLoading(false);
     }

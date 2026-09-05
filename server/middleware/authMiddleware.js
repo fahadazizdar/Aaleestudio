@@ -15,11 +15,11 @@ export const protect = async (req, res, next) => {
         const found = inMemoryUsers.find((u) => u._id === decoded.id);
         if (!found) {
           res.status(401);
-          throw new Error('Not authorized, user not found');
+          return next(new Error('Not authorized, user account not found. Please log in again.'));
         }
         if (found.isActive === false) {
           res.status(403);
-          throw new Error('Your account has been deactivated by Admin. You cannot perform this action.');
+          return next(new Error('Your account has been deactivated by Admin. You cannot perform this action.'));
         }
         req.user = found;
         return next();
@@ -28,24 +28,25 @@ export const protect = async (req, res, next) => {
       const user = await User.findById(decoded.id).select('-password');
       if (!user) {
         res.status(401);
-        throw new Error('Not authorized, token failed');
+        return next(new Error('Not authorized, user account not found in database. Please Sign In again.'));
       }
 
       if (user.isActive === false) {
         res.status(403);
-        throw new Error('Your account has been deactivated by Admin. You cannot perform this action.');
+        return next(new Error('Your account has been deactivated by Admin. You cannot perform this action.'));
       }
 
       req.user = user;
-      next();
+      return next();
     } catch (error) {
-      res.status(req.statusCode === 403 ? 403 : 401);
-      next(error);
+      const code = res.statusCode && res.statusCode !== 200 ? res.statusCode : 401;
+      res.status(code);
+      return next(error);
     }
   }
 
   if (!token) {
     res.status(401);
-    next(new Error('Not authorized, no token provided. Registration/Login required.'));
+    return next(new Error('Not authorized, no token provided. Registration/Login required.'));
   }
 };
