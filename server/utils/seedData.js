@@ -25,7 +25,7 @@ export const initialSiteSettings = {
     {
       title: 'Luxury Festive Collection 2026',
       subtitle: 'Handcrafted embroidered silk & lawn lawn formals for every special occasion.',
-      image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=1400&q=80',
+      image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=1600&q=85',
       tag: 'NEW ARRIVALS'
     },
     {
@@ -56,7 +56,7 @@ export const sampleProducts = [
         colorName: 'Royal Maroon',
         colorCode: '#800020',
         images: [
-          'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
           'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80'
         ],
         stock: 15
@@ -72,7 +72,7 @@ export const sampleProducts = [
       }
     ],
     images360: [
-      'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80'
     ],
@@ -233,7 +233,7 @@ export let inMemoryOrders = [
         selectedSize: 'M',
         quantity: 1,
         price: 6499,
-        image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80'
+        image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80'
       }
     ],
     deliveryCharges: 225,

@@ -68,7 +68,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
       {
         colorName: 'Royal Maroon',
         colorCode: '#800020',
-        images: ['https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80'],
+        images: ['https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80'],
         stock: 10
       }
     ]
@@ -89,7 +89,7 @@ export default function ProductModal({ isOpen, onClose, onSave, initialData }) {
           {
             colorName: 'Royal Maroon',
             colorCode: '#800020',
-            images: ['https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80'],
+            images: ['https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80'],
             stock: 10
           }
         ]

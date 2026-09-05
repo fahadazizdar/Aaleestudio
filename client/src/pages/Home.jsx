@@ -29,7 +29,7 @@ export default function Home() {
   }, []);
 
   const categories = [
-    { title: 'Ladies Apparel', desc: 'Lawn, Chiffon & Silk Formals', img: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=600&q=80', cat: 'Ladies' },
+    { title: 'Ladies Apparel', desc: 'Lawn, Chiffon & Silk Formals', img: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=600&q=80', cat: 'Ladies' },
     { title: 'Men Couture', desc: 'Cotton Kurtas & Waistcoats', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&q=80', cat: 'Men' },
     { title: 'Junior Edition', desc: 'Soft hypoallergenic kidswear', img: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80', cat: 'Kids' }
   ];

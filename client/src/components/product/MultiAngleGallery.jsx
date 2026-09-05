@@ -10,7 +10,7 @@ export default function MultiAngleGallery({ colorImages = [], images360 = [] }) 
     setActiveImageIndex(0);
   }, [colorImages]);
 
-  const mainImage = allImages[activeImageIndex] || allImages[0] || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+  const mainImage = allImages[activeImageIndex] || allImages[0] || 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
 
   return (
     <div className="space-y-4">

@@ -7,7 +7,7 @@ export default function ProductCard({ product }) {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
 
   const activeColor = product.colors?.[selectedColorIndex] || product.colors?.[0];
-  const primaryImage = activeColor?.images?.[0] || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+  const primaryImage = activeColor?.images?.[0] || 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
 
   return (
     <motion.div
@@ -24,7 +24,7 @@ export default function ProductCard({ product }) {
           alt={product.name}
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+            e.target.src = 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
           }}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
         />

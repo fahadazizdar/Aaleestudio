@@ -13,7 +13,7 @@ export default function HeroCarousel() {
         {
           title: 'Festive Luxury Silk & Lawn Collection 2026',
           subtitle: 'Hand-embroidered traditional & modern couture crafted for grand celebrations.',
-          image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=1600&q=85',
+          image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=1600&q=85',
           tag: 'SPRING FESTIVE'
         },
         {

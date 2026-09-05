@@ -16,7 +16,7 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product, selectedColor, selectedSize, quantity = 1) => {
     // Find color object
     const colorObj = product.colors?.find((c) => c.colorName === selectedColor) || product.colors?.[0];
-    const image = colorObj?.images?.[0] || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+    const image = colorObj?.images?.[0] || 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
 
     const cartItemId = `${product._id}_${selectedColor}_${selectedSize}`;
 

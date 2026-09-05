@@ -108,7 +108,7 @@ export default function ManageProducts() {
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {products.map((p) => {
-                    const firstImage = p.colors?.[0]?.images?.[0] || 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+                    const firstImage = p.colors?.[0]?.images?.[0] || 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
                     return (
                       <tr key={p._id} className="hover:bg-stone-50/80 transition-colors">
                         <td className="p-4">
@@ -118,7 +118,7 @@ export default function ManageProducts() {
                               alt={p.name}
                               onError={(e) => {
                                 e.target.onerror = null;
-                                e.target.src = 'https://images.unsplash.com/photo-1583391733956-6c78276477e2?auto=format&fit=crop&w=800&q=80';
+                                e.target.src = 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80';
                               }}
                               className="w-12 h-14 object-cover rounded-lg bg-stone-100"
                             />
