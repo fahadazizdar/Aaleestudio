@@ -124,11 +124,20 @@ export const getMyOrders = async (req, res, next) => {
   try {
     await connectDB();
     if (isInMemoryDB) {
-      const myOrders = inMemoryOrders.filter((o) => o.customer === req.user._id);
+      const myOrders = inMemoryOrders.filter(
+        (o) => String(o.customer) === String(req.user._id)
+      );
       return res.json(myOrders);
     }
 
-    const orders = await Order.find({ customer: req.user._id }).sort({ createdAt: -1 });
+    const userIdStr = String(req.user._id);
+    const orders = await Order.find({
+      $or: [
+        { customer: req.user._id },
+        { customer: userIdStr }
+      ]
+    }).sort({ createdAt: -1 });
+
     res.json(orders);
   } catch (error) {
     next(error);
