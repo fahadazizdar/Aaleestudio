@@ -28,7 +28,7 @@ export default function ManageOrders() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await API.put(`/orders/${orderId}/status`, { orderStatus: newStatus });
+      await API.put(`/orders/${orderId}/status`, { status: newStatus, orderStatus: newStatus });
       toast.success(`Order #${orderId} status updated to ${newStatus}`);
       fetchOrders();
     } catch (err) {
@@ -101,7 +101,7 @@ export default function ManageOrders() {
 
                       <td className="p-4">
                         <select
-                          value={o.orderStatus}
+                          value={o.orderStatus || o.status || 'Pending'}
                           onChange={(e) => handleStatusChange(o._id, e.target.value)}
                           className="px-3 py-1.5 rounded-lg border border-stone-300 bg-white font-semibold text-xs focus:ring-2 focus:ring-brand-600 outline-none"
                         >

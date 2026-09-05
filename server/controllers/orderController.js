@@ -202,10 +202,10 @@ export const updateOrderStatus = async (req, res, next) => {
   try {
     await connectDB();
     const { id } = req.params;
-    const { status } = req.body;
+    const targetStatus = req.body?.status || req.body?.orderStatus;
 
-    const validStatuses = ['Pending', 'Processing', 'Dispatched', 'Delivered', 'Cancelled'];
-    if (!status || !validStatuses.includes(status)) {
+    const validStatuses = ['Pending', 'Confirmed', 'Processing', 'Dispatched', 'Shipped', 'Delivered', 'Cancelled'];
+    if (!targetStatus || !validStatuses.includes(targetStatus)) {
       res.status(400);
       throw new Error(`Invalid status provided. Must be one of: ${validStatuses.join(', ')}`);
     }
@@ -217,8 +217,9 @@ export const updateOrderStatus = async (req, res, next) => {
         throw new Error('Order not found');
       }
 
-      order.status = status;
-      if (status === 'Delivered') {
+      order.status = targetStatus;
+      order.orderStatus = targetStatus;
+      if (targetStatus === 'Delivered') {
         order.isPaid = true;
         order.deliveredAt = new Date().toISOString();
       }
@@ -232,8 +233,9 @@ export const updateOrderStatus = async (req, res, next) => {
       throw new Error('Order not found');
     }
 
-    order.status = status;
-    if (status === 'Delivered') {
+    order.status = targetStatus;
+    order.orderStatus = targetStatus;
+    if (targetStatus === 'Delivered') {
       order.isPaid = true;
       order.deliveredAt = new Date();
     }
