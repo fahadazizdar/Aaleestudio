@@ -249,26 +249,17 @@ export let inMemorySiteSettings = { ...initialSiteSettings };
 export const seedDatabase = async () => {
   if (isInMemoryDB) return;
   try {
-    const adminEmail = 'emaane034@gmail.com';
-    const existingAdmin = await User.findOne({ email: adminEmail });
-    if (!existingAdmin) {
-      await User.create({
-        name: 'Emaan',
-        email: adminEmail,
-        password: 'Abcd@1234',
-        role: 'admin',
-        phone: '+92 300 0000000',
-        isActive: true
-      });
-      console.log('[Seed] Admin account Emaan created in MongoDB!');
-    } else if (existingAdmin.role !== 'admin') {
-      existingAdmin.role = 'admin';
-      await existingAdmin.save();
-    }
-
     const userCount = await User.countDocuments();
     if (userCount === 0) {
       await User.create([
+        {
+          name: 'Emaan',
+          email: 'emaane034@gmail.com',
+          password: 'Abcd@1234',
+          role: 'admin',
+          phone: '+92 300 0000000',
+          isActive: true
+        },
         {
           name: 'Aaleestudio Admin',
           email: 'admin@aaleestudio.com',
