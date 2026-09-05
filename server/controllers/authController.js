@@ -26,7 +26,7 @@ export const registerUser = async (req, res, next) => {
       throw new Error('Password must be at least 4 characters long.');
     }
 
-    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
+    if (isInMemoryDB) {
       const memUserExists = inMemoryUsers.find((u) => u.email === lowerEmail);
       if (memUserExists) {
         res.status(400);
@@ -109,7 +109,7 @@ export const loginUser = async (req, res, next) => {
 
     const lowerEmail = email.toLowerCase().trim();
 
-    if (isInMemoryDB || mongoose.connection.readyState !== 1) {
+    if (isInMemoryDB) {
       const memUser = inMemoryUsers.find((u) => u.email === lowerEmail);
       if (memUser && (await bcrypt.compare(password, memUser.passwordHash))) {
         return res.json({

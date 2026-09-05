@@ -16,8 +16,8 @@ export const connectDB = async () => {
     const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb+srv://fahadazizdar559_db_user:y2spBG2dRf9GElLD@cluster0.uuisjyu.mongodb.net/aaleestudio?retryWrites=true&w=majority&appName=Cluster0';
 
     connPromise = mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 3000,
-      connectTimeoutMS: 3000
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000
     }).then((m) => {
       console.log(`[Database] MongoDB Atlas Connected successfully.`);
       isInMemoryDB = false;
@@ -26,20 +26,17 @@ export const connectDB = async () => {
       connPromise = null;
       console.warn(`[Database Warning] MongoDB Atlas connection failed (${err.message}). Activating fallback mode.`);
       isInMemoryDB = true;
+      throw err;
     });
   }
 
   try {
-    await Promise.race([
-      connPromise,
-      new Promise((resolve) => setTimeout(resolve, 3000))
-    ]);
+    await connPromise;
+    isInMemoryDB = false;
   } catch (err) {
-    isInMemoryDB = true;
-  }
-
-  if (mongoose.connection.readyState !== 1) {
-    isInMemoryDB = true;
+    if (mongoose.connection.readyState !== 1) {
+      isInMemoryDB = true;
+    }
   }
 
   return mongoose.connection;
