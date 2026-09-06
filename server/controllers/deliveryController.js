@@ -10,15 +10,15 @@ export const calculateFee = async (req, res, next) => {
   try {
     const { lat, lng } = req.body || {};
 
-    let storeLoc = { lat: 31.5204, lng: 74.3587 };
+    let storeLoc = { lat: 33.5471, lng: 73.1583 };
     let baseCharge = 150;
     let ratePerKm = 15;
 
     if (isInMemoryDB) {
       if (inMemorySiteSettings?.storeLocation?.lat && inMemorySiteSettings?.storeLocation?.lng) {
         storeLoc = {
-          lat: Number(inMemorySiteSettings.storeLocation.lat) || 31.5204,
-          lng: Number(inMemorySiteSettings.storeLocation.lng) || 74.3587
+          lat: Number(inMemorySiteSettings.storeLocation.lat) || 33.5471,
+          lng: Number(inMemorySiteSettings.storeLocation.lng) || 73.1583
         };
       }
       baseCharge = Number(inMemorySiteSettings?.baseCharge) || baseCharge;

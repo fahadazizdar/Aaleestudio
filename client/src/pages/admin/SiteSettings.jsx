@@ -16,7 +16,7 @@ export default function SiteSettings() {
     address: '',
     ratePerKm: 15,
     baseCharge: 150,
-    storeLocation: { lat: 31.5204, lng: 74.3587 },
+    storeLocation: { lat: 33.5471, lng: 73.1583 },
     footerAboutText: '',
     rulesAndTerms: []
   });
@@ -33,8 +33,8 @@ export default function SiteSettings() {
         setFormData({
           ...data,
           storeLocation: {
-            lat: data.storeLocation?.lat ?? 31.5204,
-            lng: data.storeLocation?.lng ?? 74.3587
+            lat: data.storeLocation?.lat ?? 33.5471,
+            lng: data.storeLocation?.lng ?? 73.1583
           }
         });
       }

@@ -19,7 +19,7 @@ export const initialSiteSettings = {
   ],
   ratePerKm: 15,
   baseCharge: 150,
-  storeLocation: { lat: 31.5204, lng: 74.3587 },
+  storeLocation: { lat: 33.5471, lng: 73.1583 },
   footerAboutText: 'Aaleestudio brings high-fashion apparel, multi-angle product previewing, dynamic color switching, and reliable Cash on Delivery nationwide.',
   heroSlides: [
     {

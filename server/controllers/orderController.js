@@ -23,15 +23,15 @@ export const createOrder = async (req, res, next) => {
     }
 
     // Retrieve active site delivery settings
-    let storeLoc = { lat: 31.5204, lng: 74.3587 };
+    let storeLoc = { lat: 33.5471, lng: 73.1583 };
     let baseCharge = 150;
     let ratePerKm = 15;
 
     if (isInMemoryDB) {
       if (inMemorySiteSettings?.storeLocation?.lat && inMemorySiteSettings?.storeLocation?.lng) {
         storeLoc = {
-          lat: Number(inMemorySiteSettings.storeLocation.lat) || 31.5204,
-          lng: Number(inMemorySiteSettings.storeLocation.lng) || 74.3587
+          lat: Number(inMemorySiteSettings.storeLocation.lat) || 33.5471,
+          lng: Number(inMemorySiteSettings.storeLocation.lng) || 73.1583
         };
       }
       if (typeof inMemorySiteSettings?.baseCharge === 'number') baseCharge = inMemorySiteSettings.baseCharge;

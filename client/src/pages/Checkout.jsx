@@ -23,10 +23,10 @@ export default function Checkout() {
   const [shippingDetails, setShippingDetails] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
-    address: 'House 12, Street 5, Block C, Johar Town',
-    city: 'Lahore',
-    latitude: 31.4697,
-    longitude: 74.2728
+    address: 'House 12, Street 5, Model Town',
+    city: 'Islamabad',
+    latitude: 33.6844,
+    longitude: 73.0479
   });
 
   useEffect(() => {
@@ -64,17 +64,22 @@ export default function Checkout() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
+          const lat = Number(pos.coords.latitude.toFixed(4));
+          const lng = Number(pos.coords.longitude.toFixed(4));
           setShippingDetails((prev) => ({ ...prev, latitude: lat, longitude: lng }));
-          toast.success(`Location updated! Distance calculated from store hub.`);
+          toast.success(`GPS Location detected (${lat}, ${lng})! Distance updated.`);
         },
         () => {
-          toast.error('Unable to fetch GPS location. Default distance used.');
+          toast.error('Unable to fetch GPS location. Please check browser location permissions or enter coordinates.');
         }
       );
     }
   };
+
+  // Auto-detect GPS location on initial load if browser supports it
+  useEffect(() => {
+    handleUseCurrentLocation();
+  }, []);
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
