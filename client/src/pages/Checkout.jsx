@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export default function Checkout() {
   const { cartItems, cartSubtotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, siteSettings } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -30,6 +30,16 @@ export default function Checkout() {
   });
 
   useEffect(() => {
+    if (user) {
+      setShippingDetails((prev) => ({
+        ...prev,
+        name: prev.name || user.name || '',
+        phone: prev.phone || user.phone || ''
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (cartItems.length === 0) {
       navigate('/cart');
     }
@@ -38,7 +48,9 @@ export default function Checkout() {
   const handleCalculateDistanceFee = async (lat, lng) => {
     try {
       const { data } = await API.post('/delivery/calculate', { lat, lng });
-      setDeliveryInfo(data);
+      if (data && typeof data === 'object') {
+        setDeliveryInfo(data);
+      }
     } catch (err) {
       console.error('Failed to calculate delivery charges:', err);
     }
@@ -96,7 +108,7 @@ export default function Checkout() {
     }
   };
 
-  const grandTotal = cartSubtotal + deliveryInfo.totalCharges;
+  const grandTotal = (cartSubtotal || 0) + (Number(deliveryInfo?.totalCharges) || 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
