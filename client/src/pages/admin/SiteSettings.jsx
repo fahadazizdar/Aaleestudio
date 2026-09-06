@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Save, ShieldCheck, MapPin, Phone, Mail, Plus, Trash2 } from 'lucide-react';
+import { Settings, Save, ShieldCheck, MapPin, Phone, Mail, Plus, Trash2, Navigation } from 'lucide-react';
 import API from '../../services/api';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import Loader from '../../components/common/Loader';
@@ -16,6 +16,7 @@ export default function SiteSettings() {
     address: '',
     ratePerKm: 15,
     baseCharge: 150,
+    storeLocation: { lat: 31.5204, lng: 74.3587 },
     footerAboutText: '',
     rulesAndTerms: []
   });
@@ -28,11 +29,40 @@ export default function SiteSettings() {
     setLoading(true);
     try {
       const { data } = await API.get('/admin/settings');
-      setFormData(data);
+      if (data) {
+        setFormData({
+          ...data,
+          storeLocation: {
+            lat: data.storeLocation?.lat ?? 31.5204,
+            lng: data.storeLocation?.lng ?? 74.3587
+          }
+        });
+      }
     } catch (err) {
       console.error('Failed to load settings:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoDetectShopLocation = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setFormData((prev) => ({
+            ...prev,
+            storeLocation: { lat, lng }
+          }));
+          toast.success(`Shop GPS Location updated: Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}!`);
+        },
+        () => {
+          toast.error('Unable to auto-detect GPS. Please enter Latitude & Longitude manually.');
+        }
+      );
+    } else {
+      toast.error('Geolocation is not supported by your browser.');
     }
   };
 
@@ -151,12 +181,61 @@ export default function SiteSettings() {
               </div>
             </div>
 
-            {/* Delivery Charge Parameters */}
+            {/* Delivery Charge Parameters & Shop GPS Location */}
             <div className="pt-4 border-t border-stone-200 space-y-4">
-              <h4 className="font-serif font-bold text-stone-900 text-base">
-                Distance Delivery Calculation Parameters
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="font-serif font-bold text-stone-900 text-base flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-brand-600" />
+                  <span>Main Shop GPS Location & Distance Delivery Parameters</span>
+                </h4>
+
+                <button
+                  type="button"
+                  onClick={handleAutoDetectShopLocation}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:text-brand-800 bg-brand-50 px-3.5 py-1.5 rounded-full border border-brand-200"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>Auto-Detect Current Shop GPS</span>
+                </button>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold mb-1">Main Shop Latitude (GPS) *</label>
+                  <input
+                    type="number"
+                    step="any"
+                    required
+                    value={formData.storeLocation?.lat ?? 31.5204}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        storeLocation: { ...formData.storeLocation, lat: Number(e.target.value) }
+                      })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:ring-2 focus:ring-brand-600 outline-none"
+                    placeholder="e.g. 33.6844"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-1">Main Shop Longitude (GPS) *</label>
+                  <input
+                    type="number"
+                    step="any"
+                    required
+                    value={formData.storeLocation?.lng ?? 74.3587}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        storeLocation: { ...formData.storeLocation, lng: Number(e.target.value) }
+                      })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:ring-2 focus:ring-brand-600 outline-none"
+                    placeholder="e.g. 73.0479"
+                  />
+                </div>
+
                 <div>
                   <label className="block font-semibold mb-1">Base Charge (PKR) *</label>
                   <input

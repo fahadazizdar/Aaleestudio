@@ -209,11 +209,13 @@ export default function Checkout() {
               <div className="flex items-center justify-between text-brand-950 font-bold text-xs">
                 <span className="flex items-center gap-1.5">
                   <Truck className="w-4 h-4 text-brand-600" />
-                  <span>Distance Calculation Formula</span>
+                  <span>GPS Distance Calculation</span>
                 </span>
-                <span>{deliveryInfo.distanceKm} km from Hub</span>
+                <span>{deliveryInfo.distanceKm} km from Main Shop</span>
               </div>
               <p className="text-[11px] text-stone-600">
+                Measured from Main Shop (<strong>{siteSettings?.address || 'Model Town Store Hub'}</strong>) to your GPS coordinates.
+                <br />
                 Base Fee (Rs. {deliveryInfo.baseCharge}) + Distance Rate ({deliveryInfo.distanceKm} km × Rs. {deliveryInfo.ratePerKm}/km) = <strong>Rs. {deliveryInfo.totalCharges}</strong>
               </p>
             </div>

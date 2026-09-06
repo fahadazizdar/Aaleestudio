@@ -16,15 +16,20 @@ export const calculateFee = async (req, res, next) => {
 
     if (isInMemoryDB) {
       if (inMemorySiteSettings?.storeLocation?.lat && inMemorySiteSettings?.storeLocation?.lng) {
-        storeLoc = inMemorySiteSettings.storeLocation;
+        storeLoc = {
+          lat: Number(inMemorySiteSettings.storeLocation.lat) || 31.5204,
+          lng: Number(inMemorySiteSettings.storeLocation.lng) || 74.3587
+        };
       }
-      baseCharge = inMemorySiteSettings?.baseCharge ?? baseCharge;
-      ratePerKm = inMemorySiteSettings?.ratePerKm ?? ratePerKm;
+      baseCharge = Number(inMemorySiteSettings?.baseCharge) || baseCharge;
+      ratePerKm = Number(inMemorySiteSettings?.ratePerKm) || ratePerKm;
     } else {
       const settings = await SiteSettings.findOne();
       if (settings) {
-        if (settings.storeLocation && typeof settings.storeLocation.lat === 'number' && typeof settings.storeLocation.lng === 'number') {
-          storeLoc = { lat: settings.storeLocation.lat, lng: settings.storeLocation.lng };
+        const sLat = Number(settings.storeLocation?.lat);
+        const sLng = Number(settings.storeLocation?.lng);
+        if (!isNaN(sLat) && !isNaN(sLng) && sLat !== 0 && sLng !== 0) {
+          storeLoc = { lat: sLat, lng: sLng };
         }
         if (typeof settings.baseCharge === 'number' && !isNaN(settings.baseCharge)) {
           baseCharge = settings.baseCharge;

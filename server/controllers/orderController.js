@@ -29,14 +29,21 @@ export const createOrder = async (req, res, next) => {
 
     if (isInMemoryDB) {
       if (inMemorySiteSettings?.storeLocation?.lat && inMemorySiteSettings?.storeLocation?.lng) {
-        storeLoc = inMemorySiteSettings.storeLocation;
+        storeLoc = {
+          lat: Number(inMemorySiteSettings.storeLocation.lat) || 31.5204,
+          lng: Number(inMemorySiteSettings.storeLocation.lng) || 74.3587
+        };
       }
       if (typeof inMemorySiteSettings?.baseCharge === 'number') baseCharge = inMemorySiteSettings.baseCharge;
       if (typeof inMemorySiteSettings?.ratePerKm === 'number') ratePerKm = inMemorySiteSettings.ratePerKm;
     } else {
       const settings = await SiteSettings.findOne();
       if (settings) {
-        if (settings.storeLocation?.lat && settings.storeLocation?.lng) storeLoc = settings.storeLocation;
+        const sLat = Number(settings.storeLocation?.lat);
+        const sLng = Number(settings.storeLocation?.lng);
+        if (!isNaN(sLat) && !isNaN(sLng) && sLat !== 0 && sLng !== 0) {
+          storeLoc = { lat: sLat, lng: sLng };
+        }
         if (typeof settings.baseCharge === 'number') baseCharge = settings.baseCharge;
         if (typeof settings.ratePerKm === 'number') ratePerKm = settings.ratePerKm;
       }
